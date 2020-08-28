@@ -1,7 +1,12 @@
-sort_index_test.csv
-test_ml_df.csv
+archive
 balance_sheet
+combined_dfs
 dividends
 eps
 prices
 revenue
+impute_ready_csv.csv
+my_csv.csv
+sort_index_test.csv
+Stock_Model_Practice.ipynb
+ticker_dict.pkl

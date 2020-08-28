@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 import os
+import pickle
+import sys
 from datetime import datetime
 from Ticker import Ticker
 from pickle import dump, load
@@ -27,21 +29,26 @@ end_date_epoch = end_date.timestamp()
 
 # I need to create a dictionary with every ticker symbol mapped to my custom Ticker object, which has built in
 # methods to pull price and financials from the Yahoo Finance API.
+reuse_input_flag = False
 reuse = 'N'
+verify = 'Y'
 if isfile('ticker_dict.pkl'):
     reuse = input('Ticker Dictionary already exists from previous run. '
                   'Would you like to continue writing to that dictionary (Y/N): ')
+    reuse_input_flag = True
 if reuse == 'Y':
     print('\nLoading Ticker Dictionary...')
     ticker_dict = load(open('ticker_dict.pkl', 'rb'))
-elif reuse != 'Y':
-    verify = input('Are you sure you want to continue? This will start over your Ticker Dictionary (Y/N): ')
+else:
+    if reuse == 'N' and reuse_input_flag:
+        verify = input('Are you sure you want to continue? This will start over your Ticker Dictionary (Y/N): ')
     if verify == 'Y':
         if isfile('ticker_dict.pkl'):
             print('Saving old Ticker Dictionary to archive folder...')
             move('ticker_dict.pkl', f'archive/')
-            os.rename(f'archive/ticker_dict.pkl', f'archive/ticker_dict_{datetime.now}.pkl')
-        print('\nReconstructing Ticker Dictionary')
+            now = datetime.now()
+            os.rename(f'archive/ticker_dict.pkl', f'archive/ticker_dict_{now.year}_{now.month}_{now.day}.pkl')
+        print('\nConstructing Ticker Dictionary')
         custom = input('You can load all NYSE, NASDAQ, and S&P500 tickers from the root directory CSV files, or you can'
                        ' input your own list of tickers. Would you like to input your own list of tickers?  (Y/N): ')
         if custom == 'Y':
@@ -64,6 +71,8 @@ elif reuse != 'Y':
         ticker_dict = dict()
         for symbol in filtered_set:
             ticker_dict.update({symbol: Ticker(symbol, start_date_epoch, end_date_epoch)})
+    else:
+        sys.exit('Please verify whether you want to load an old ticker dictionary, or start a new one')
 
 # I now need to iterate over the entire dictionary and populate my Ticker objects with their price and financials
 # DataFrames. They will also write all of the CSVs to my output directories.
@@ -80,8 +89,8 @@ for ticker in ticker_dict.values():
         cont = input('Input "Y" when you are ready to continue (probably wait a bit)')
 
     with open('ticker_dict.pkl', 'wb') as file:
-        dump(ticker_dict, file)
+        dump(ticker_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Dump my big ticker dictionary to my root directory
 with open('ticker_dict.pkl', 'wb') as file:
-    dump(ticker_dict, file)
+    dump(ticker_dict, file, protocol=pickle.HIGHEST_PROTOCOL)

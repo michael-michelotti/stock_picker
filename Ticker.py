@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import requests
 from datetime import datetime as dt
@@ -9,13 +10,16 @@ from time import sleep
 class Ticker:
     def __init__(self, symbol, start_date_epoch, end_date_epoch):
         self.symbol = symbol
-        self.price = []
-        self.dividends = []
+        self.price = pd.DataFrame()
+        self.dividends = pd.DataFrame()
         self.price_is_run = False
-        self.balance_sheet = []
-        self.eps = []
-        self.income_statement = []
+        self.balance_sheet = pd.DataFrame()
+        self.eps = pd.DataFrame()
+        self.income_statement = pd.DataFrame()
         self.financials_are_run = False
+        self.combined_df = pd.DataFrame()
+        self.combined_df_created = False
+        self.combined_df_imputed = False
         self.start_date_epoch = start_date_epoch
         self.end_date_epoch = end_date_epoch
 
@@ -165,7 +169,61 @@ class Ticker:
                 else:
                     print(f'Did not receive any revenue data for {self.symbol}')
 
+    def impute_combined_df(self, column_name):
+        if not self.combined_df_created:
+            print(f'Combined DF is not created for {self.symbol}. Cannot impute')
+        else:
+            price_nulls = self.combined_df[self.combined_df[column_name].isnull()].index
+            for nulls in price_nulls:
+                null_loc = self.combined_df.index.get_loc(nulls)
+                if np.isnan(self.combined_df[column_name].iloc[null_loc]):
+                    og_null_loc = null_loc
+                    total_nulls = 1
+                    ends_with_null = False
+                    starts_with_null = False
+                    while np.isnan(self.combined_df[column_name].iloc[null_loc]):
+                        if null_loc == 0:
+                            starts_with_null = True
+                        if null_loc == len(self.combined_df[column_name]) - 1:
+                            ends_with_null = True
+                            break
+                        if np.isnan(self.combined_df[column_name].iloc[null_loc + 1]):
+                            total_nulls += 1
+                        null_loc += 1
 
+                    first_point = og_null_loc - 1
+                    second_point = null_loc
 
+                    if ends_with_null:
+                        impute_value = self.combined_df[column_name].iloc[first_point]
+                        self.combined_df[column_name].iloc[og_null_loc:] = impute_value
+                    elif starts_with_null:
+                        impute_value = self.combined_df[column_name].iloc[null_loc]
+                        self.combined_df[column_name].iloc[:null_loc] = impute_value
+                    else:
+                        rise = self.combined_df[column_name].iloc[second_point] - self.combined_df[column_name].iloc[first_point]
+                        run = second_point - first_point
+                        slope = np.divide(rise, run)
+                        for nums in np.arange(start=1, stop=total_nulls + 1):
+                            self.combined_df[column_name].iloc[first_point + nums] = slope * nums + self.combined_df[column_name].iloc[first_point]
 
+    def create_combined_df(self):
+        if self.dividends.empty:
+            self.combined_df = pd.concat([self.price, self.balance_sheet, self.income_statement],
+                                         axis=1, join='outer')
+            self.combined_df['Dividend'] = 0
+        else:
+            self.combined_df = pd.concat([self.price, self.dividends, self.balance_sheet, self.income_statement],
+                                         axis=1, join='outer')
+
+        self.combined_df_created = True
+        self.combined_df.to_csv(f'combined_dfs/{self.symbol}_combined_df.csv')
+
+    def slice_df_on_revenue(self):
+        if self.combined_df_created:
+            filt = self.combined_df['TotalRevenue'].notnull()
+            first_revenue = self.combined_df[filt].index[0]
+            self.combined_df = self.combined_df.loc[first_revenue:]
+        else:
+            print(f'Combined DF is not created for {self.symbol}. Cannot slice')
 
