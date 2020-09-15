@@ -1,14 +1,16 @@
 import numpy as np
 import pandas as pd
 import requests
+import time
 from datetime import datetime as dt
-from time import sleep
+
+from setup_logger import logger
 
 
 # Yahoo Fundamentals: '/v10/finance/quoteSummary/{ticker}?modules='
 # Yahoo Prices: '/v8/finance/chart/{ticker}?symbol={ticker}&period1=0&period2=9999999999&interval=3mo'
 class Ticker:
-    def __init__(self, symbol, start_date_epoch, end_date_epoch):
+    def __init__(self, symbol):
         self.symbol = symbol
         self.price = pd.DataFrame()
         self.dividends = pd.DataFrame()
@@ -20,31 +22,34 @@ class Ticker:
         self.combined_df = pd.DataFrame()
         self.combined_df_created = False
         self.combined_df_imputed = False
-        self.start_date_epoch = start_date_epoch
-        self.end_date_epoch = end_date_epoch
+        self.start_date_epoch = 0
+        self.end_date_epoch = 0
+
+    def __repr__(self):
+        return f'{self.symbol} Ticker, Price Run: {self.price_is_run}, Financials Run: {self.financials_are_run}'
 
     # My first subplot will be a shared axis showing stock price and dividends over the last 10 years
     def run_price_and_dividends(self):
         if self.price_is_run:
-            print(f'Price already loaded for {self.symbol}, skipping...')
+            logger.info(f'Price already loaded for {self.symbol}, skipping...')
         else:
+            logger.info(f'\nBeginning Price and Dividend update for {self.symbol}')
             self.price_is_run = True
-            print(f'\nBeginning Price and Dividend update for {self.symbol}')
             yahoo_api_base = 'query1.finance.yahoo.com'
-            sleep(2)
             query_url = f'http://{yahoo_api_base}/v8/finance/chart/{self.symbol}?symbol={self.symbol}&period1=' \
                         f'{int(self.start_date_epoch)}&period2={int(self.end_date_epoch)}&interval=1mo&events=div'
             json = requests.get(query_url).json()
+            time.sleep(2)
             if json['chart']['error']:
-                print(f'{self.symbol} error: {json["chart"]["error"]["description"]}. Skipping financials')
+                logger.error(f'{self.symbol} error: {json["chart"]["error"]["description"]}. Skipping financials')
                 self.financials_are_run = True
                 return
             if '1mo' not in json['chart']['result'][0]['meta']['validRanges']:
-                print(f'1 month is not a valid price sample rate for {self.symbol}. Skipping price.')
+                logger.warning(f'1 month is not a valid price sample rate for {self.symbol}. Skipping price.')
                 return
             if not json['chart']['result'][0]['indicators']['adjclose'][0]:
-                print(f'Did not get any prices for {self.symbol}, but not sure why (no error but blank query). '
-                      f'Skipping financials')
+                logger.warning(f'Did not get any price/dividend for {self.symbol}, but not sure why (no error but blank'
+                               f' query). Skipping financials')
                 self.financials_are_run = True
                 return
 
@@ -57,7 +62,7 @@ class Ticker:
             self.price['Timestamp'] = json['chart']['result'][0]['timestamp']
             self.price['Timestamp'] = self.price['Timestamp'].apply(lambda x: dt.fromtimestamp(x))
             self.price.set_index('Timestamp', inplace=True)
-            self.price.to_csv(f'prices/{self.symbol}_price.csv')
+            self.price.to_csv(f'ticker_info/prices/{self.symbol}_price.csv')
 
             # I want to create a dividends spreadsheet as well. I can tease the information out of the JSON response
             try:
@@ -69,9 +74,9 @@ class Ticker:
                 self.dividends = pd.DataFrame(div_values, index=div_timestamps, columns=['Dividend'])
                 self.dividends.index.rename('Timestamp', inplace=True)
                 self.dividends.sort_index(inplace=True)
-                self.dividends.to_csv(f'dividends/{self.symbol}_dividends.csv')
+                self.dividends.to_csv(f'ticker_info/dividends/{self.symbol}_dividends.csv')
             except KeyError:
-                print(f'Dividends not found for {self.symbol}. They may not pay out dividends.')
+                logger.warning(f'Dividends not found for {self.symbol}. They may not pay out dividends.')
 
     # There are three CSVs that I'm creating from the run_financials section. I'm using the Balance Sheet to create a
     # "Assets vs Liabilities" table. I'm using the Earnings History to create a table of last years Earnings Per Share.
@@ -79,17 +84,17 @@ class Ticker:
     # Unclear as of right now exactly how these might fit into a plot.
     def run_financials(self):
         if self.financials_are_run:
-            print(f'Financials skipping for {self.symbol}...')
+            logger.info(f'Financials skipping for {self.symbol}...')
         else:
+            logger.info(f'Beginning Financials update for {self.symbol}')
             self.financials_are_run = True
-            print(f'Beginning Financials update for {self.symbol}')
             yahoo_api_base = 'query1.finance.yahoo.com'
             # BALANCE SHEET SECTION
-            sleep(2)
             query_url = f'http://{yahoo_api_base}/v10/finance/quoteSummary/{self.symbol}?modules=balanceSheetHistory'
             json = requests.get(query_url).json()
+            time.sleep(2)
             if json['quoteSummary']['error']:
-                print(json['quoteSummary']['error']['description'])
+                logger.error(json['quoteSummary']['error']['description'])
             else:
                 # The below is a list where each element is one year
                 annual_balance_sheet = json['quoteSummary']['result'][0]['balanceSheetHistory']['balanceSheetStatements']
@@ -109,21 +114,22 @@ class Ticker:
                             total_liabilities.append(year['totalLiab']['raw'])
 
                 if balance_timestamps:
-                    self.balance_sheet = pd.DataFrame({'ShortTermAssets': short_term_assets, 'TotalAssets': total_assets,
+                    self.balance_sheet = pd.DataFrame({'ShortTermAssets': short_term_assets,
+                                                       'TotalAssets': total_assets,
                                                        'ShortTermLiabilities': short_term_liabilities,
                                                        'TotalLiabilities': total_liabilities},
                                                       index=pd.to_datetime(balance_timestamps))
                     self.balance_sheet.index.rename('Timestamp', inplace=True)
-                    self.balance_sheet.to_csv(f'balance_sheet/{self.symbol}_balance_sheet.csv')
+                    self.balance_sheet.to_csv(f'ticker_info/balance_sheet/{self.symbol}_balance_sheet.csv')
                 else:
-                    print(f'Did not receive any Balance Sheet information for {self.symbol}')
+                    logger.warning(f'Did not receive any Balance Sheet information for {self.symbol}')
 
             # EPS SECTION
-            sleep(2)
             query_url = f'http://{yahoo_api_base}/v10/finance/quoteSummary/{self.symbol}?modules=earningsHistory'
             json = requests.get(query_url).json()
+            time.sleep(2)
             if json['quoteSummary']['error']:
-                print(json['quoteSummary']['error']['description'])
+                logger.error(json['quoteSummary']['error']['description'])
             else:
                 # List of each quarter for the last year
                 quarterly_eps = json['quoteSummary']['result'][0]['earningsHistory']['history']
@@ -137,16 +143,16 @@ class Ticker:
                 if eps_timestamp:
                     self.eps = pd.DataFrame({'EPS': eps}, index=pd.to_datetime(eps_timestamp))
                     self.eps.index.rename('Timestamp', inplace=True)
-                    self.eps.to_csv(f'eps/{self.symbol}_eps.csv')
+                    self.eps.to_csv(f'ticker_info/eps/{self.symbol}_eps.csv')
                 else:
-                    print(f'Did not receive any EPS data for {self.symbol}')
+                    logger.warning(f'Did not receive any EPS data for {self.symbol}')
 
             # REVENUE SECTION
-            sleep(2)
             query_url = f'http://{yahoo_api_base}/v10/finance/quoteSummary/{self.symbol}?modules=incomeStatementHistory'
             json = requests.get(query_url).json()
+            time.sleep(2)
             if json['quoteSummary']['error']:
-                print(json['quoteSummary']['error']['description'])
+                logger.error(json['quoteSummary']['error']['description'])
             else:
                 # List of annual income statement each year for the last 4 years
                 annual_income_statement = json['quoteSummary']['result'][0]['incomeStatementHistory']['incomeStatementHistory']
@@ -162,16 +168,18 @@ class Ticker:
                             net_income.append(year['netIncome']['raw'])
 
                 if revenue_timestamp:
-                    self.income_statement = pd.DataFrame({'TotalRevenue': total_revenue, 'GrossProfit': gross_profit,
-                                                          'NetIncome': net_income}, index=pd.to_datetime(revenue_timestamp))
+                    self.income_statement = pd.DataFrame({'TotalRevenue': total_revenue,
+                                                          'GrossProfit': gross_profit,
+                                                          'NetIncome': net_income},
+                                                         index=pd.to_datetime(revenue_timestamp))
                     self.income_statement.index.rename('Timestamp', inplace=True)
-                    self.income_statement.to_csv(f'revenue/{self.symbol}_revenue.csv')
+                    self.income_statement.to_csv(f'ticker_info/revenue/{self.symbol}_revenue.csv')
                 else:
-                    print(f'Did not receive any revenue data for {self.symbol}')
+                    logger.warning(f'Did not receive any revenue data for {self.symbol}')
 
     def impute_combined_df(self, column_name):
         if not self.combined_df_created:
-            print(f'Combined DF is not created for {self.symbol}. Cannot impute')
+            logger.error(f'Combined DF is not created for {self.symbol}. Cannot impute')
         else:
             price_nulls = self.combined_df[self.combined_df[column_name].isnull()].index
             for nulls in price_nulls:
@@ -217,7 +225,7 @@ class Ticker:
                                          axis=1, join='outer')
 
         self.combined_df_created = True
-        self.combined_df.to_csv(f'combined_dfs/{self.symbol}_combined_df.csv')
+        self.combined_df.to_csv(f'ticker_info/combined_dfs/{self.symbol}_combined_df.csv')
 
     def slice_df_on_revenue(self):
         if self.combined_df_created:
@@ -225,5 +233,5 @@ class Ticker:
             first_revenue = self.combined_df[filt].index[0]
             self.combined_df = self.combined_df.loc[first_revenue:]
         else:
-            print(f'Combined DF is not created for {self.symbol}. Cannot slice')
+            logger.error(f'Combined DF is not created for {self.symbol}. Cannot slice')
 

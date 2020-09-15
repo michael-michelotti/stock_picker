@@ -1,36 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 from matplotlib import style
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import model_selection
-from Ticker import Ticker
-from pickle import load
 
-
-# This will be the main function that I can come into and pull whatever information was made available in the
-# refresh_financials function. I can manipuate that info and use scikitlearn to try and make some predictions about
-# price of stocks going into the future based on information about how many dividends they paid out
-# I really need to think now about what I'm going to try and predict and what I'm going to try to use to predict it.
-
-# Obviously, my target column is stock price. I want to predict it based on all the parameters I have.
-# All of my other data is sampled less often, so I think I need to do a lot of imputing. I think I will use dividend,
-# revenue, and Total Assets - Total Liabilities to make these predictions.
-
-# It's not really that useful to make the 'target' just a monthly price. Well, maybe not. What I really want to do is
-# make the target the FUTURE price given the dividend, liability, and Total Assets - Total Liabilities. I think what
-# I want to do is impute everything for revenues, assets, dividends. Then, I will shift the price column down one to be
-# three months in the future. At that point, I can make my prediction. At that point, I can concatenate every single
-# imputed dataframe and really train my model on a ton of data. I will require any stock that I model to have a
-# revenue, dividend, and balance_sheet csv. Don't care about EPS, will only use that for charts.
-
-# The first thing I want to do is drop every row that occurs before there is any revenue data
-ticker_dict = load(open('ticker_dict.pkl', 'rb'))
-
-# I think I only want to do stocks that have a balance sheet and revenue CSV. They can have no dividend csv, in that
-# case I will just impute 0 into the dividend column
-column_names = ['Price', 'TotalRevenue', 'GrossProfit', 'NetIncome', 'Dividend', 'ShortTermAssets',
-                'TotalAssets', 'ShortTermLiabilities', 'TotalLiabilities']
 
 good_ticker_list = []
 for ticker in ticker_dict.values():
@@ -59,9 +32,6 @@ clf.fit(X_train, y_train)
 # I guess the first thing I'll do is create the subplots first. My plan is to create three plots. One plot will be
 # the price and the dividend sharing a y axis over the same period of time
 # for ticker in approved_tickers:
-my_df = pd.read_csv('prices/JPM_price.csv', parse_dates=True, index_col='Timestamp')
-my_div = pd.read_csv('dividends/JPMdividends.csv', parse_dates=True, index_col='Unnamed: 0')
-
 style.use('ggplot')
 for ticker in good_ticker_list:
     fig = plt.figure(figsize=(20,20))
