@@ -22,14 +22,12 @@ class Ticker:
         self.combined_df = pd.DataFrame()
         self.combined_df_created = False
         self.combined_df_imputed = False
-        self.start_date_epoch = 0
-        self.end_date_epoch = 0
 
     def __repr__(self):
         return f'{self.symbol} Ticker, Price Run: {self.price_is_run}, Financials Run: {self.financials_are_run}'
 
     # My first subplot will be a shared axis showing stock price and dividends over the last 10 years
-    def run_price_and_dividends(self):
+    def run_price_and_dividends(self, start_date_epoch, end_date_epoch):
         if self.price_is_run:
             logger.info(f'Price already loaded for {self.symbol}, skipping...')
         else:

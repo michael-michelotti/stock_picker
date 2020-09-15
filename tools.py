@@ -55,18 +55,31 @@ def parse_custom_list(cus_str):
     """
     if not type(cus_str) == str:
         raise TypeError('Custom list input must be a string')
-    cus_list = cus_str.split(',')
+    if not cus_str:
+        raise ValueError('Input string cannot be empty')
+    if re.search(r'[^A-za-z\s,]+', cus_str):
+        raise ValueError('List can only contain characters, spaces, and commas')
+
+    cus_list = cus_str.upper().split(',')
     filt_set = {ticker.strip() for ticker in cus_list if not re.search(r'[\W]', ticker.strip())}
     return {symbol: Ticker(symbol) for symbol in filt_set}
 
 
-def load_symbol_src():
+def load_symbol_src(load_dir):
     """
-    Loads in all files of .csv format from the symbol_src directory. Parses symbols from any column that has "Symbol"
-    in the title. Symbols which contain anything other than word characters (A-Z, a-z, 0-9) will be discarded.
+    Loads in all files of .csv format from a subdirectory of the root directory. Parses symbols from any column
+    that has "Symbol" in the title. Symbols which contain anything other than word characters (A-Z, a-z, 0-9)
+    will be discarded.
     :return: Dictionary of Ticker objects based on symbols parsed from symbol_src directory
     """
-    load_files = glob('symbol_src/*.csv')
+    if not type(load_dir) == str:
+        raise TypeError('Load directory name must be in string format')
+    if not load_dir:
+        raise ValueError('Load directory cannot be empty')
+    load_files = glob(f'{load_dir}/*.csv')
+    if not load_files:
+        # logging.error(f'{load_dir} directory not found in the root directory')
+        raise FileNotFoundError(f'{load_dir} directory not found in the root directory')
     dfs = [pd.read_csv(file) for file in load_files]
     symbol_series = pd.Series(dtype=str)
     for df in dfs:
@@ -85,10 +98,8 @@ def full_ticker_run(ticker, start_timestamp, end_timestamp):
     :param end_timestamp: UTC timestamp to mark end date of price and dividend query
     :return: Ticker object with financial information
     """
-    ticker.start_date_epoch = start_timestamp
-    ticker.end_date_epoch = end_timestamp
     try:
-        ticker.run_price_and_dividends()
+        ticker.run_price_and_dividends(start_timestamp, end_timestamp)
     except Exception as err:
         logging.error(f'Following error reported: {err}. Most likely Yahoo closed out connection')
         input('Input any character when you are ready to continue (probably wait a bit)')
@@ -125,4 +136,4 @@ def get_reload_param(file_name):
 
 
 if __name__ == '__main__':
-    archive_file('fake_file')
+    print(parse_custom_list('AAPL   GOOGL'))

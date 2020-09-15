@@ -18,7 +18,6 @@ if __name__ == '__main__':
     start_date_epoch = tools.get_epoch_timestamp(start_date_str)
     end_date_str = input('Please input your desired end date in YYYY-MM-DD format: ')
     end_date_epoch = tools.get_epoch_timestamp(end_date_str)
-    logger.info(f'Starting timestamp is set to {start_date_epoch}. Ending timestamp is set to {end_date_epoch}')
 
     # Set default behavior for the case that the ticker_dict.pkl file doesn't already exist
     reuse = tools.get_reload_param('ticker_dict.pkl')
@@ -35,7 +34,7 @@ if __name__ == '__main__':
             custom_list = input('Please input your custom list, separated by commas (ex. AAPL, GOOGL, JPM): ')
             ticker_dict = tools.parse_custom_list(custom_list)
         else:
-            ticker_dict = tools.load_symbol_src()
+            ticker_dict = tools.load_symbol_src('symbol_src')
 
     # I now need to iterate over the entire dictionary and populate my Ticker objects with their price and financials
     # DataFrames. They will also write all of the CSVs to my output directories.
@@ -47,5 +46,6 @@ if __name__ == '__main__':
             logger.info(f'Completed processing {ticker_num} out of {len(ticker_dict)} tickers')
 
     # Dump my big ticker dictionary to my root directory
+    logger.info('Completed processing all tickers')
     with open('ticker_dict.pkl', 'wb') as file:
         pickle.dump(ticker_dict, file, protocol=pickle.HIGHEST_PROTOCOL)

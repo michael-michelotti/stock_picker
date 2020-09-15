@@ -29,8 +29,48 @@ class TestTools(unittest.TestCase):
         with self.assertRaises(ValueError):
             tools.archive_file('')
 
-    # def test_parse_custom_list(self):
-    #     self.assertEqual(tools.parse_custom_list('AAPL, GOOGL'))
+    def test_parse_custom_list(self):
+        result = tools.parse_custom_list('AAPL, GOOGL')
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(type(result), dict)
+        self.assertIsInstance(result['AAPL'], Ticker)
+        self.assertIsInstance(result['GOOGL'], Ticker)
+
+        # Not properly handling a tab or underscore delimiter right now
+        with self.assertRaises(ValueError):
+            tools.parse_custom_list('AAPL.GOOGL')
+        with self.assertRaises(ValueError):
+            tools.parse_custom_list('AAPL, 2GOOG')
+        # with self.assertRaises(ValueError):
+        #     tools.parse_custom_list('AAPL   GOOG')
+        with self.assertRaises(ValueError):
+            tools.parse_custom_list('')
+        with self.assertRaises(TypeError):
+            tools.parse_custom_list(23)
+        with self.assertRaises(TypeError):
+            tools.parse_custom_list(['AAPL', 'GOOGL'])
+        with self.assertRaises(TypeError):
+            tools.parse_custom_list(set('AAPL', 'GOOGL'))
+
+    def test_load_symbol_src(self):
+        result = tools.load_symbol_src('symbol_src')
+        self.assertEqual(type(result), dict)
+
+        with self.assertRaises(TypeError):
+            tools.load_symbol_src(234)
+        with self.assertRaises(ValueError):
+            tools.load_symbol_src('')
+        with self.assertRaises(FileNotFoundError):
+            tools.load_symbol_src('fakedir2030912')
+
+    # This one will need that mocking thing in the Shafer video, I think
+    # def test_full_ticker_run(self):
+    #     result = tools.full_ticker_run(Ticker('AAPL'))
+
+    # This one will also need mocking
+    # def test_get_reload_param(self):
+    #     self.assertTrue()
 
 
 if __name__ == '__main__':
