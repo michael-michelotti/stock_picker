@@ -85,6 +85,7 @@ def chart_financials(ticker, fig):
     ax5.legend(loc=(0.9, 0))
 
     plt.savefig(f'charts/{ticker.symbol}.png')
+    plt.close(fig)
 
 
 if __name__ == '__main__':

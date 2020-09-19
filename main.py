@@ -1,30 +1,27 @@
+import matplotlib.pyplot as plt
 import pandas as pd
+import pickle
 
 import chart_ticker
 
 
-good_ticker_list = []
-for ticker in ticker_dict.values():
-    if not ticker.price.empty and not ticker.balance_sheet.empty and not ticker.income_statement.empty:
-        good_ticker_list.append(ticker)
+if __name__ == '__main__':
+    ticker_dict = pickle.load(open('ticker_dict.pkl', 'rb'))
+    for ticker in ticker_dict.values():
+        if not ticker.price.empty and not ticker.balance_sheet.empty and not ticker.income_statement.empty:
+            plt.rcParams = chart_ticker.configure_rc_params('full_chart')
+            fig = chart_ticker.create_chart('full_chart')
+            chart_ticker.chart_financials(ticker, fig)
 
-df_list = []
-for ticker in good_ticker_list:
-    ticker.create_combined_df()
-    ticker.slice_df_on_revenue()
-    for column_name in column_names:
-        ticker.impute_combined_df(column_name)
-    df_list.append(ticker.combined_df)
+    # df_list = []
+    # for ticker in good_ticker_list:
+    #     ticker.create_combined_df()
+    #     ticker.slice_df_on_revenue()
+    #     for column_name in column_names:
+    #         ticker.impute_combined_df(column_name)
+    #     df_list.append(ticker.combined_df)
 
-big_df = pd.concat(df_list, axis=0)
-
-X = big_df.drop('Price', axis=1)
-y = big_df['Price']
-
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2)
-
-clf = RandomForestRegressor()
-clf.fit(X_train, y_train)
+    # big_df = pd.concat(df_list, axis=0)
 
 
 # I guess the first thing I'll do is create the subplots first. My plan is to create three plots. One plot will be
