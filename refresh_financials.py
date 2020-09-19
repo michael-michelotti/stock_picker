@@ -13,7 +13,7 @@ from setup_logger import logger
 
 # I need to create a dictionary with every ticker symbol mapped to my custom Ticker object, which has built in
 # methods to pull price and financials from the Yahoo Finance API.
-if __name__ == '__main__':
+def main():
     start_date_str = input('Please input your desired start date in YYYY-MM-DD format: ')
     start_date_epoch = tools.get_epoch_timestamp(start_date_str)
     end_date_str = input('Please input your desired end date in YYYY-MM-DD format: ')
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # I now need to iterate over the entire dictionary and populate my Ticker objects with their price and financials
     # DataFrames. They will also write all of the CSVs to my output directories.
     for ticker_num, ticker in enumerate(ticker_dict.values()):
-        ticker = tools.full_ticker_run(ticker, start_date_epoch, end_date_epoch)
+        tools.full_ticker_run(ticker, start_date_epoch, end_date_epoch)
         with open('ticker_dict.pkl', 'wb') as file:
             pickle.dump(ticker_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
         if ticker_num % 20 == 0:
@@ -49,3 +49,7 @@ if __name__ == '__main__':
     logger.info('Completed processing all tickers')
     with open('ticker_dict.pkl', 'wb') as file:
         pickle.dump(ticker_dict, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+if __name__ == '__main__':
+    main()
