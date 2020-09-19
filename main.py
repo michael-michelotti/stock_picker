@@ -22,8 +22,3 @@ if __name__ == '__main__':
     #     df_list.append(ticker.combined_df)
 
     # big_df = pd.concat(df_list, axis=0)
-
-
-# I guess the first thing I'll do is create the subplots first. My plan is to create three plots. One plot will be
-# the price and the dividend sharing a y axis over the same period of time
-# for ticker in approved_tickers:
