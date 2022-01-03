@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib import style
 
 
 def configure_rc_params(chart_type):
@@ -89,6 +90,6 @@ def chart_financials(ticker, fig):
 
 
 if __name__ == '__main__':
-    plt.rcParams = configure_rc_params('full_chart')
-    fig = create_chart('full_chart')
-    print('This .py file is intended to be a module, and should not be run directly.')
+    # plt.rcParams = configure_rc_params('full_chart')
+    # fig = create_chart('full_chart')
+    print('chart_ticker.py file is intended to be a module, and should not be run directly.')

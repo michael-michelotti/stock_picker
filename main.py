@@ -5,12 +5,16 @@ import pickle
 import chart_ticker
 
 
-if __name__ == '__main__':
-    ticker_dict = pickle.load(open('ticker_dict.pkl', 'rb'))
+if __name__ == "__main__":
+    ticker_dict = pickle.load(open("ticker_dict.pkl", "rb"))
     for ticker in ticker_dict.values():
-        if not ticker.price.empty and not ticker.balance_sheet.empty and not ticker.income_statement.empty:
-            plt.rcParams = chart_ticker.configure_rc_params('full_chart')
-            fig = chart_ticker.create_chart('full_chart')
+        if not (
+            ticker.price.empty
+            and ticker.balance_sheet.empty
+            and ticker.income_statement.empty
+        ):
+            plt.rcParams = chart_ticker.configure_rc_params("full_chart")
+            fig = chart_ticker.create_chart("full_chart")
             chart_ticker.chart_financials(ticker, fig)
 
     # df_list = []

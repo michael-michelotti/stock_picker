@@ -136,4 +136,4 @@ def get_reload_param(file_name):
 
 
 if __name__ == '__main__':
-    print(parse_custom_list('AAPL   GOOGL'))
+    print('This is a script, not meant to be called directly.')
