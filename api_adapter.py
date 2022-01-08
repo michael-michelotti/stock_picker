@@ -29,5 +29,5 @@ class ApiAdapter(ABC):
     #     ...
 
     @abstractmethod
-    def _format_data(self):
+    def _format_data(self, data: dict):
         ...

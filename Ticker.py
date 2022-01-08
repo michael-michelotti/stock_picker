@@ -6,8 +6,6 @@ from datetime import datetime as dt
 
 from setup_logger import logger
 
-_cookie = {"B": "434uh2les2i4t&b=4&d=h7XqrCttYFoZS1jhk.r5&s=md&i=kH7l7wFp6i0elEntRLsb"}
-_crumb = "OC42ccX8Vq2"
 
 # Yahoo Fundamentals: '/v10/finance/quoteSummary/{ticker}?modules='
 # Yahoo Prices: '/v8/finance/chart/{ticker}?symbol={ticker}&period1=0&period2=9999999999&interval=3mo'

@@ -1,0 +1,26 @@
+Design
+========
+
+Receiving Input
+-----------------
+The script should be able to accept stock symbol input with basically any format. The input must be processed from
+any arbitrary format into the same end format.
+
+This will be accomplished with the `Strategy Pattern <https://en.wikipedia.org/wiki/Strategy_pattern/>`_. The main
+``Application`` object will be composed with an ``InputProcessingStrategy``.
+
+Fetching Data
+---------------
+The script should be able to determine which API to fetch data from at runtime. The number of available APIs will be
+extensible. This will be accomplished using the Abstract Factory and Adapter patterns.
+
+An Abstract Factory will determine which Adapter is appropriate to adapt the API interface to a common interface
+expected by the App.
+
+Presenting Data
+----------------
+The script should be able to determine how data needs to be presented at runtime. The number of presentation
+formats should be extensible. User input will be parsed by another Abstract Factory, which creates a queue of
+PresentationCommands which utilize the Command Pattern.
+
+Once data has been fetched, the presentation commands will be executed, displaying data as requested.

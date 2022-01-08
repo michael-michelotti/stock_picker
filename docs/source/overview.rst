@@ -1,0 +1,19 @@
+Overview
+========
+
+What is this?
+-----------------
+The Stock Picker receives stock symbols, then pulls and displays financial data for those symbols
+
+Who is this for?
+-------------------
+People with an interest in finance, and some basic experience using Python scripts.
+
+People who need to easily see financial information for an arbitrary number of stock symbols.
+
+How does it work?
+-------------------
+The user will feed stock symbols into the script, along with input arguments that indicate how they want the
+data displayed.
+
+Script will obtain, process, and display requested data.
