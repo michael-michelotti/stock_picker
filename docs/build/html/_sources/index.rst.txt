@@ -8,4 +8,4 @@ Welcome to Stock Picker's documentation!
 
 .. toctree::
    overview
-
+   design

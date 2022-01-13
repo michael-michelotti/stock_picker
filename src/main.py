@@ -1,12 +1,11 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 import pickle
 
 import chart_ticker
 
 
 if __name__ == "__main__":
-    ticker_dict = pickle.load(open("ticker_dict.pkl", "rb"))
+    ticker_dict = pickle.load(open("../archive/ticker_dict.pkl", "rb"))
     for ticker in ticker_dict.values():
         if not (
             ticker.price.empty

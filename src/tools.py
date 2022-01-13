@@ -5,7 +5,7 @@ import os.path
 import shutil
 import logging
 from datetime import datetime
-from ticker import Ticker
+# from .ticker import Ticker
 from glob import glob
 
 
@@ -41,7 +41,7 @@ def archive_file(file_name):
     if not os.path.isfile(file_name):
         raise FileNotFoundError("This file does not exist in the root directory")
     logging.info(f"Saving {file_name} to archive folder...")
-    shutil.move(f"{file_name}", "archive")
+    shutil.move(f"{file_name}", "../archive")
     curr = datetime.now()
     name, ext = os.path.splitext(file_name)
     os.rename(

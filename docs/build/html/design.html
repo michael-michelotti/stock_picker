@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Design &#8212; Stock Picker 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Overview" href="overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="design">
+<h1>Design<a class="headerlink" href="#design" title="Permalink to this headline">¶</a></h1>
+<section id="receiving-input">
+<h2>Receiving Input<a class="headerlink" href="#receiving-input" title="Permalink to this headline">¶</a></h2>
+<p>The script should be able to accept stock symbol input with basically any format. The input must be processed from
+any arbitrary format into the same end format.</p>
+<p>This will be accomplished with the <a class="reference external" href="https://en.wikipedia.org/wiki/Strategy_pattern/">Strategy Pattern</a>. The main
+<code class="docutils literal notranslate"><span class="pre">Application</span></code> object will be composed with an <code class="docutils literal notranslate"><span class="pre">InputProcessingStrategy</span></code>.</p>
+<a class="reference internal image-reference" href="_images/Stock_Picker_Diagrams.png"><img alt="_images/Stock_Picker_Diagrams.png" src="_images/Stock_Picker_Diagrams.png" style="height: 500px;" /></a>
+</section>
+<section id="fetching-data">
+<h2>Fetching Data<a class="headerlink" href="#fetching-data" title="Permalink to this headline">¶</a></h2>
+<p>The script should be able to determine which API to fetch data from at runtime. The number of available APIs will be
+extensible. This will be accomplished using the Abstract Factory and Adapter patterns.</p>
+<p>An Abstract Factory will determine which Adapter is appropriate to adapt the API interface to a common interface
+expected by the App.</p>
+</section>
+<section id="presenting-data">
+<h2>Presenting Data<a class="headerlink" href="#presenting-data" title="Permalink to this headline">¶</a></h2>
+<p>The script should be able to determine how data needs to be presented at runtime. The number of presentation
+formats should be extensible. User input will be parsed by another Abstract Factory, which creates a queue of
+PresentationCommands which utilize the Command Pattern.</p>
+<p>Once data has been fetched, the presentation commands will be executed, displaying data as requested.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Stock Picker</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#receiving-input">Receiving Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fetching-data">Fetching Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#presenting-data">Presenting Data</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="overview.html" title="previous chapter">Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Michael Michelotti.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/design.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

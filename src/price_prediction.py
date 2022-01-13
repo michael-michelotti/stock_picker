@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn import model_selection
 
 
-ticker_dict = pickle.load(open('ticker_dict.pkl', 'rb'))
+ticker_dict = pickle.load(open('../archive/ticker_dict.pkl', 'rb'))
 
 column_names = ['Price', 'TotalRevenue', 'GrossProfit', 'NetIncome', 'Dividend', 'ShortTermAssets',
                 'TotalAssets', 'ShortTermLiabilities', 'TotalLiabilities']

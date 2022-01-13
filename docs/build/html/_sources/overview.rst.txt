@@ -14,4 +14,6 @@ People who need to easily see financial information for an arbitrary number of s
 How does it work?
 -------------------
 The user will feed stock symbols into the script, along with input arguments that indicate how they want the
-data displayed. Script will obtain, process, and display requested data.
+data displayed.
+
+Script will obtain, process, and display requested data.

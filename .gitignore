@@ -1,7 +1,7 @@
 archive
 ticker_info
 logs
-ticker_dict.pkl
+archive/ticker_dict.pkl
 Untitled.ipynb
 .ipynb_checkpoints
 __pycache__
