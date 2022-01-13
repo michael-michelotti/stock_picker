@@ -69,7 +69,7 @@ def test_progress_again():
 #
 #
 # def test_load_symbol_src(self):
-#     result = tools.load_symbol_src('../symbol_src')
+#     result = tools.load_symbol_src('../dev_data')
 #     self.assertEqual(type(result), dict)
 #
 #     with self.assertRaises(TypeError):

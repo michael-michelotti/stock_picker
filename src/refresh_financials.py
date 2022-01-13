@@ -28,13 +28,13 @@ def main():
         if os.path.isfile('../archive/ticker_dict.pkl'):
             tools.archive_file('../archive/ticker_dict.pkl')
         logger.info('Now constructing Ticker Dictionary')
-        custom = input('You can load symbols from the symbol_src subdirectory, or you can input your own list of '
+        custom = input('You can load symbols from the dev_data subdirectory, or you can input your own list of '
                        'tickers. Would you like to input your own list of tickers? (Y/N): ')
         if custom == 'Y':
             custom_list = input('Please input your custom list, separated by commas (ex. AAPL, GOOGL, JPM): ')
             ticker_dict = tools.parse_custom_list(custom_list)
         else:
-            ticker_dict = tools.load_symbol_src('../symbol_src')
+            ticker_dict = tools.load_symbol_src('../dev_data')
 
     # I now need to iterate over the entire dictionary and populate my Ticker objects with their price and financials
     # DataFrames. They will also write all of the CSVs to my output directories.

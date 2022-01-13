@@ -78,7 +78,7 @@ def load_symbol_src(load_dir):
     Loads in all files of .csv format from a subdirectory of the root directory. Parses symbols from any column
     that has "Symbol" in the title. Symbols which contain anything other than word characters (A-Z, a-z, 0-9)
     will be discarded.
-    :return: Dictionary of Ticker objects based on symbols parsed from symbol_src directory
+    :return: Dictionary of Ticker objects based on symbols parsed from dev_data directory
     """
     if not type(load_dir) == str:
         raise TypeError("Load directory name must be in string format")

@@ -8,3 +8,4 @@ __pycache__
 charts
 venv
 .idea/
+.pytest_cache/*
